@@ -14,7 +14,7 @@ def train_snn(x,y,param):
       
         #Step2: Backward
         w1, w2, cost = ut.backward(Act, y, w1,w2,param[2]) 
-        # cost.append(mse) 
+        
     return(w1,w2,cost) 
    
 # Beginning ...
