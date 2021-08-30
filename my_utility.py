@@ -23,20 +23,20 @@ def forward(x,w1,w2):
     z2 = np.dot(w2, a1)
     a2 = act_sigmoid(z2)
 
-    return a2.T    
+    return a2.T
 
 # STEP 2: Gradiente via BackPropagation
 def backward(Act, y, w1,w2, mu):
     # Calcular el error
     cost = y - Act
     # Calcular el gradiente oculto y salida    
-    dCdW = grad_bp(Act, w1, w2)
+    dCdW = grad_bp(Act, w1, w2, cost)
     # Actualizar los pesos
     w1, w2 = updW(w1, mu, dCdW)
     
     return w1, w2, cost 
 
-def grad_bp(Act, w1, w2):
+def grad_bp(Act, w1, w2, e):
     a2 = Act.T
     z2 = deriva_sigmoid(a2)
     a1 = np.dot(z2,w2.T)
@@ -47,7 +47,7 @@ def grad_bp(Act, w1, w2):
     dCdW1 = 0
 
     # Calcular gradiente capa salida
-    dCdW2 = 0
+    dCdW2 = np.dot(np.multiply(e, deriva_sigmoid(z2)), a1.T)
 
     return dCdW1, dCdW2   
 
@@ -84,6 +84,7 @@ def load_config():
     par.append(np.int16(param[1])) # Max. Iterations
     par.append(np.float(param[2])) # Learn rate    
     return (par)
+    
 # Load data 
 def load_data(fname):
     df = pd.read_csv(fname, header=None)   
