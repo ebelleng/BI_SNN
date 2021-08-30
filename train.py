@@ -7,13 +7,14 @@ import my_utility as ut
 #Training of SNN
 def train_snn(x,y,param):
     w1,w2 = ut.iniW(param[0], x, y)  
-    
+    cost = []
     for iter in range(param[1]):
         #Step 1: Forward
         Act = ut.forward(x,w1,w2) 
       
         #Step2: Backward
-        w1, w2, cost = ut.backward(Act, y, w1,w2,param[2]) 
+        w1, w2, mse = ut.backward(Act, y, w1,w2,param[2]) 
+        cost.append(mse)
         
     return(w1,w2,cost) 
    

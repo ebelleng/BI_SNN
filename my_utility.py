@@ -5,8 +5,9 @@ import numpy  as np
 
 # Init.weights of the DL 
 def iniW(nodes_hidden, x, y):
-    _, size_input = x.shape # 375, 5
-    size_output, _ = y.shape # 1, 375
+    size_input, _ = x.shape # 375, 5
+    _, size_output = y.shape # 375, 1
+    
     # Init. w1 y w2 
     w1 = np.random.random((nodes_hidden, size_input)) #dim -> (20x5)
     w2 = np.random.random((size_output, nodes_hidden)) #dim -> (1x20)
@@ -17,39 +18,44 @@ def iniW(nodes_hidden, x, y):
 #STEP 1: Feed-forward of DAE
 def forward(x,w1,w2):
     # Calcula la activación de los Nodos Ocultos
-    z1 = np.dot(w1, x.T)
+    z1 = np.dot(w1, x)
     a1 = act_sigmoid(z1)
     # Calcula la activación de los Nodos de Salida
     z2 = np.dot(w2, a1)
     a2 = act_sigmoid(z2)
 
-    return a2.T
+    return a2
 
 # STEP 2: Gradiente via BackPropagation
 def backward(Act, y, w1,w2, mu):
     # Calcular el error
-    cost = y - Act
+    error = y.T - Act
     # Calcular el gradiente oculto y salida    
-    dCdW = grad_bp(Act, w1, w2, cost)
+    dCdW = grad_bp(Act, w1, w2, error)
     # Actualizar los pesos
-    w1, w2 = updW(w1, mu, dCdW)
+    w1, w2 = updW(w1, w2, mu, dCdW)
+    # Calcular Error cuadratico medio
+    mse = 0
+    for e in error[0]:
+        mse += e**2
     
-    return w1, w2, cost 
+    return w1, w2, mse*0.5 
 
 def grad_bp(Act, w1, w2, e):
-    a2 = Act.T
-    z2 = deriva_sigmoid(a2)
-    a1 = np.dot(z2,w2.T)
-    z1 = deriva_sigmoid(a1)
-    x = np.dot(z1, w1.T)
-
-    # Calcular gradiente capa oculta
-    dCdW1 = 0
+    a2 = Act                # 1, 375
+    z2 = deriva_sigmoid(a2) # 1, 375
+    a1 = np.dot(w2.T, z2)   # 20, 375
+    z1 = deriva_sigmoid(a1) # 20, 375
+    x = np.dot(w1.T, z1)    # 5, 375
 
     # Calcular gradiente capa salida
-    dCdW2 = np.dot(np.multiply(e, deriva_sigmoid(z2)), a1.T)
+    delta2 = np.multiply(e, deriva_sigmoid(z2))
+    dCdW2 = np.dot(delta2, a1.T)
+    # Calcular gradiente capa oculta
+    delta1 = np.multiply( np.dot(w2.T, delta2), deriva_sigmoid(z1) )
+    dCdW1 = np.dot( delta1, x.T)
 
-    return dCdW1, dCdW2   
+    return dCdW1, dCdW2
 
 # Update SNN's Weight 
 def updW(w1, w2, mu=0.1, dCdW=(0,0)):    
@@ -125,7 +131,9 @@ def norm(df):
         df_norm[col] = (df[col] - min_) * (b - a) / (max_ - min_) + a
     
     x = df_norm.drop(labels=[5], axis=1)
+    x = x.T
     y = df_norm.drop(labels=[i for i in range(5)],axis = 1)
-
+    
     return (x.to_numpy(),y.to_numpy())
+
 
