@@ -37,9 +37,9 @@ def backward(Act, y, w1,w2, mu):
     # Calcular Error cuadratico medio
     mse = 0
     for e in error[0]:
-        mse += e**2
+        mse += e**2 * 0.5 
     
-    return w1, w2, mse*0.5 
+    return w1, w2, mse
 
 def grad_bp(Act, w1, w2, e):
     a2 = Act                # 1, 375
