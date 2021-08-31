@@ -29,15 +29,13 @@ def forward(x,w1,w2):
 # STEP 2: Gradiente via BackPropagation
 def backward(Act, y, w1,w2, mu):
     # Calcular el error
-    error = y.T - Act
+    error = Act - y.T
     # Calcular el gradiente oculto y salida    
     dCdW = grad_bp(Act, w1, w2, error)
     # Actualizar los pesos
     w1, w2 = updW(w1, w2, mu, dCdW)
     # Calcular Error cuadratico medio
-    mse = 0
-    for e in error[0]:
-        mse += e**2 * 0.5 
+    mse = np.sum(error[0] ** 2) / len(error[0])
     
     return w1, w2, mse
 
@@ -49,7 +47,7 @@ def grad_bp(Act, w1, w2, e):
     x = np.dot(w1.T, z1)    # 5, 375
 
     # Calcular gradiente capa salida
-    delta2 = np.multiply(e, deriva_sigmoid(z2))
+    delta2 = np.multiply(e, deriva_sigmoid(z2)) # Probar con a2
     dCdW2 = np.dot(delta2, a1.T)
     # Calcular gradiente capa oculta
     delta1 = np.multiply( np.dot(w2.T, delta2), deriva_sigmoid(z1) )
@@ -106,8 +104,7 @@ def save_w(w1,w2, fname_w, cost, fname_cost):
     np.savez_compressed(fname_w, w1, w2)
     # Guardar mse
     archivo = open(fname_cost, 'w')
-    archivo.write('Iteracion,MSE\n') # header
-    [ archivo.write(f'{i},{c}\n') for i, c in enumerate(cost, 1) ]
+    [ archivo.write(f'{c}\n') for c in cost ]
     archivo.close()
     
 #load weight of SNN in numpy format
