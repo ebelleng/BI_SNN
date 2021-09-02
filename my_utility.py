@@ -74,8 +74,46 @@ def deriva_sigmoid(a):
 
 # Métrica
 def metrica(x,y):
-    #completar code
-    return(...)
+
+    #Error
+    e =  x - y
+    n = len(x)
+    
+    #Calculo de MAE
+    absolute = np.absolute(e)
+    mae = 1/n * np.sum(absolute)
+    
+    #Calculo de MSE Y RMSE
+    diffSquare = e**2
+    suma = np.sum(diffSquare)
+    mse = 1/n * suma
+    rmse = np.sqrt(mse)
+    
+    #Calculo de R2
+    varE = e.var()#np.var(e)
+    varY = x.var()#np.var(x)
+    r2 = 1 - (varE/varY)
+
+    
+    #print('mae',mae)
+    #print('mse',mse)
+    #print('rmse',rmse)
+    #print('mse',mse) 
+    #print('var e',varE)
+    #print('vat y',varY)
+    #print('varE/varY',varE/varY)
+    #print('R2',r2)
+    
+    #Guardado en archivo metrica.csv
+    archivo = open('metricas.csv', 'w')
+    archivo.write('MAE: '+ str(mae))
+    archivo.write("\n")
+    archivo.write('RMSE: '+ str(rmse))
+    archivo.write("\n")
+    archivo.write('R2: '+ str(r2))
+    archivo.close()
+    
+    #falta crear el archivo estima.csv
   
 #------------------------------------------------------------------------
 #      LOAD-SAVE
