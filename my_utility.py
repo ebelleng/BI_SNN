@@ -75,7 +75,7 @@ def deriva_sigmoid(a):
 # Métrica
 def metrica(x,y):
 
-    #Error
+    #Error valor real - valor estimado
     e =  x - y
     n = len(x)
     
