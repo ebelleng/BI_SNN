@@ -106,14 +106,18 @@ def metrica(x,y):
     
     #Guardado en archivo metrica.csv
     archivo = open('metricas.csv', 'w')
-    archivo.write('MAE: '+ str(mae))
-    archivo.write("\n")
-    archivo.write('RMSE: '+ str(rmse))
-    archivo.write("\n")
-    archivo.write('R2: '+ str(r2))
+    
+    archivo.write(f'MAE,RMSE,R2\n')
+    archivo.write(f'{mae},{rmse},{r2}\n')
+    
     archivo.close()
     
-    #falta crear el archivo estima.csv
+    #Guardado en archivo estima.csv
+    archivo = open('estima.csv', 'w')
+    
+    archivo.write(f'{mae},{rmse},{r2}\n')
+    
+    archivo.close()
   
 #------------------------------------------------------------------------
 #      LOAD-SAVE
