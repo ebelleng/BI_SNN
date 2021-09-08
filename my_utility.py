@@ -1,3 +1,9 @@
+'''
+INTEGRANTES
+ETIENNE BELLENGER HERRERA   17619315-8
+JUAN IGNACIO AVILA OJEDA    19013610-8
+'''
+
 # My Utility : auxiliars functions
 
 import pandas as pd
@@ -7,10 +13,14 @@ import numpy  as np
 def iniW(nodes_hidden, x, y):
     size_input, _ = x.shape # 375, 5
     _, size_output = y.shape # 375, 1
+
+    # Caso 1
+    r = np.sqrt(6 / ( nodes_hidden + size_input))
+    w1 = np.random.random((nodes_hidden, size_input)) * 2* r - r    #dim -> (20x5)
     
-    # Init. w1 y w2 
-    w1 = np.random.random((nodes_hidden, size_input)) #dim -> (20x5)
-    w2 = np.random.random((size_output, nodes_hidden)) #dim -> (1x20)
+    # Caso 2
+    r = np.sqrt(1 / ( size_output + nodes_hidden))
+    w2 = np.random.randn(size_output, nodes_hidden) * r           #dim -> (1x20)
        
     return(w1,w2)
 
@@ -24,14 +34,18 @@ def forward(x,w1,w2):
     z2 = np.dot(w2, a1)
     a2 = act_sigmoid(z2)
 
-    return a2
+    return (a1,a2)
 
 # STEP 2: Gradiente via BackPropagation
-def backward(Act, y, w1,w2, mu):
+def backward(Act, data, w1,w2, mu):
+    # Valor esperado
+    _, d = Act 
+    # Valor real
+    x , y = data
     # Calcular el error
-    error = Act - y.T
+    error = d - y.T
     # Calcular el gradiente oculto y salida    
-    dCdW = grad_bp(Act, w1, w2, error)
+    dCdW = grad_bp(Act, x, w2, error)
     # Actualizar los pesos
     w1, w2 = updW(w1, w2, mu, dCdW)
     # Calcular Error cuadratico medio
@@ -39,13 +53,11 @@ def backward(Act, y, w1,w2, mu):
     
     return w1, w2, mse
 
-def grad_bp(Act, w1, w2, e):
-    a2 = Act                # 1, 375
+def grad_bp(Act, x, w2, e):
+    a1, a2 = Act
     z2 = deriva_sigmoid(a2) # 1, 375
-    a1 = np.dot(w2.T, z2)   # 20, 375
     z1 = deriva_sigmoid(a1) # 20, 375
-    x = np.dot(w1.T, z1)    # 5, 375
-
+    
     # Calcular gradiente capa salida
     delta2 = np.multiply(e, deriva_sigmoid(z2)) # Probar con a2
     dCdW2 = np.dot(delta2, a1.T)
@@ -73,11 +85,12 @@ def deriva_sigmoid(a):
     return(a*(1-a))
 
 # Métrica
-def metrica(x,y):
-
+def metrica(yv,zv):
+    zv = zv.T
+    
     #Error valor real - valor estimado
-    e =  x - y
-    n = len(x)
+    e =  yv - zv
+    n = len(yv)
     
     #Calculo de MAE
     absolute = np.absolute(e)
@@ -91,19 +104,9 @@ def metrica(x,y):
     
     #Calculo de R2
     varE = e.var()#np.var(e)
-    varY = x.var()#np.var(x)
+    varY = yv.var()#np.var(yv)
     r2 = 1 - (varE/varY)
 
-    
-    #print('mae',mae)
-    #print('mse',mse)
-    #print('rmse',rmse)
-    #print('mse',mse) 
-    #print('var e',varE)
-    #print('vat y',varY)
-    #print('varE/varY',varE/varY)
-    #print('R2',r2)
-    
     #Guardado en archivo metrica.csv
     archivo = open('metricas.csv', 'w')
     
@@ -114,8 +117,8 @@ def metrica(x,y):
     
     #Guardado en archivo estima.csv
     archivo = open('estima.csv', 'w')
-    
-    archivo.write(f'{mae},{rmse},{r2}\n')
+	
+    [ archivo.write(f'{yv[i][0]},{zv[i][0]}\n') for i in range(len(yv)) ]
     
     archivo.close()
   
